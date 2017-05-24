@@ -10,7 +10,7 @@ main = Blueprint('document', __name__)
 def index(doc_url):
     u = current_user()
     d = Document.find_one(doc_url=doc_url)
-    if d.public is True or (u is not None and d.user_uuid = u.uuid):
+    if d.public is True or (u is not None and d.user_uuid == u.uuid):
         return render_template('document.html', d=d, u=u)
     else:
         abort(401)
