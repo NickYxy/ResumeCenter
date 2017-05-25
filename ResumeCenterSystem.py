@@ -21,7 +21,7 @@ def register_routes(app):
 
 
 def register_filters(app):
-    from usr_util.filters import filters
+    from user_util.filters import filters
     app.jinja_env.filters.update(filters)
 
 
