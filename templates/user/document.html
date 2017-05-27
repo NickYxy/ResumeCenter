@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block body %}
+
+    <div>
+        {{ msgs }}
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-6">
+            <div class="">
+                简历地址：
+                <a href="{{ p.doc_url_full_path }}">
+                    {{ p.doc_url_full_path }}
+                </a>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading toggle-panel-heading">
+                    上传图片
+                    <span class="glyphicon glyphicon-chevron-down right"></span>
+                </div>
+                <div class="panel-body" hidden>
+                    <form method="post" enctype="multipart/form-data" action="{{ url_for('user.pic_upload') }}"
+                          onsubmit="return ajaxPicUpload();">
+                        <input name="pic" type="file" class="form-control" id="id-input-file-pic-upload" required>
+                        <button class="btn btn-success">上传图片</button>
+                    </form>
+                    <div class="img-upload-item-container">
+                    {% for i in u.pics_url %}
+                        <div class="img-upload-item" data-name="{{ i }}">
+                            <img src="{{ i }}" alt="" class="img-user-pic-preview">
+                            <div class="right img-url-text">
+                                <div>{{ i }}</div>
+                                <a href="#" class="btn btn-danger btn-xs right btn-img-del">删除</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <form method=POST enctype=multipart/form-data action="{{ url_for('user.document_update') }}">
+
+                <div class="panel panel-default">
+                    <div class="panel-heading toggle-panel-heading">
+                        自定义CSS
+                        <span class="glyphicon glyphicon-chevron-down right"></span>
+                    </div>
+                    <div class="panel-body" hidden>
+                        <textarea class="form-control" rows="8" name="css">{{ p.css }}</textarea>
+                    </div>
+                </div>
+                <label for="text-input">简历内容</label>
+                <textarea id="text-input" oninput="this.editor.update()"
+                          class="form-control" rows="20" name="detail">{{ p.detail }}</textarea>
+                <hr>
+                <button class="btn btn-success btn-block">保存</button>
+            </form>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+            <div id="preview"></div>
+            <style>{{ p.css }}</style>
+        </div>
+    </div>
+    <script src="https://cdn.bootcss.com/markdown.js/0.5.0/markdown.min.js"></script>
+    <script src="{{ url_for('static', filename='js/document.js') }}"></script>
+
+{% endblock %}
