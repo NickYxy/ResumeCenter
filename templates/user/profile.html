@@ -57,7 +57,7 @@
                                 <input name="captcha" placeholder="验证码（不区分大小写）" autocomplete="off" required>
                             </div>
                             <img onclick="this.setAttribute('src','/img/captcha?nocache='+Math.random());"
-                                 src="/img/captcha"
+                                 src="{{ url_for('img.captcha') }}"
                                  alt="Captcha" class=""/>
                             <br>
                             <button class="btn btn-info btn-block" id=id-button-verify type=submit>获取验证邮件</button>

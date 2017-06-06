@@ -5,6 +5,7 @@ from . import MongoModel
 from . import timestamp
 from . import safe_list_get
 from . import short_uuid
+from . import bool_dict
 from decimal import Decimal
 from .document import Document
 from .mail import send_verify_email
@@ -18,29 +19,19 @@ class Role(Enum):
     client = 3
 
 
-bool_dict = {
-    'true': True,
-    'false': False,
-}
-
-
 class User(MongoModel):
     @classmethod
     def _fields(cls):
         fields = [
             ('username', str, ''),
-            ('nickname', str, ''),
             ('email', str, ''),
             ('email_verify', bool, False),
             ('email_token', str, ''),
             ('email_token_exp', int, 0),
             ('password', str, ''),
-            ('avatar', str, 'default.png'),
             ('role', str, 'client'),
             ('salt', str, 'q43129dhs*3'),
-            ('cart', dict, {}),
-            ('add_list', list, []),
-            ('add_default', int, 0),
+            ('pics', list, []),
         ]
         fields.extend(super()._fields())
         return fields
@@ -50,6 +41,7 @@ class User(MongoModel):
         m = super().new(form)
         m.password = m.salted_password(form.get('password', ''))
         m.save()
+        Document.new({'user_uuid': m.uuid})
         return m
 
     def update_user(self, form):
@@ -59,7 +51,7 @@ class User(MongoModel):
         re_password = form.pop('re_password', '')
         email_verify = form.pop('email_verify', 'true')
         form['email_verify'] = bool_dict.get(email_verify, False)
-        if(self.email_exist(form.get('email'))):
+        if self.email_exist(form.get('email')):
             form.pop('email')
         self.update(form)
         if len(password) > 0 and password == re_password:
@@ -68,11 +60,8 @@ class User(MongoModel):
         return self
 
     def safe_update_user(self, form):
-        username = form.get('username', '')
         password = form.get('password', '')
         re_password = form.get('re_password', '')
-        if len(username) > 0:
-            self.username = username
         if len(password) > 0 and password == re_password:
             self.password = self.salted_password(password)
         self.save()
@@ -121,6 +110,25 @@ class User(MongoModel):
             self.avatar = 'default.png'
         self.save()
         return self
+
+    def pic_upload(self, pic):
+        allowed_type = app.config['ALLOWED_UPLOAD_TYPE']
+        if pic.filename != '' and pic.filename.split('.')[-1] in allowed_type and len(self.pics) <= 20:
+            path = app.config['USER_PIC_DIR']
+            filename = '{}_{}.{}'.format(self.uuid, timestamp(), app.config['PRODUCT_PIC_EXT'])
+            pic.save(path + filename)
+            self.pics.append(filename)
+            self.save()
+            return app.config['BASE_URL'] + path + filename
+        else:
+            return False
+
+    def pic_del(self, pic):
+        self.pics.remove(pic)
+        self.save()
+        import os
+        os.remove(os.path.join(app.config['USER_PIC_DIR'], pic))
+        return True
 
     def update_dict(self, **kwargs):
         for k, v in kwargs.items():
@@ -193,6 +201,29 @@ class User(MongoModel):
         return self.email_verify
 
     @classmethod
+    def forget_password(cls, form):
+        username = form.get('username')
+        email = form.get('email')
+        u = cls.find_one(username=username)
+        if u is not None and u.email_verified() and u.email == email:
+            tb64 = u.set_token(email)
+            send_password_email(email, tb64)
+            return True
+        return False
+
+    @classmethod
+    def forget_password_verify(cls, tb64):
+        s = cls.safe_decode_b64(tb64)
+        if s is None:
+            return False
+        uuid, token_sha1 = s.split('-', 1)
+        u = cls.get_uuid(uuid)
+        if u.email_token_valid(token_sha1):
+            return True
+        else:
+            return False
+
+    @classmethod
     def get_user_by_tb64(cls, tb64):
         s = cls.safe_decode_b64(tb64)
         if s is None:
@@ -203,6 +234,12 @@ class User(MongoModel):
             return u
         else:
             return None
+
+    def reset_password(self, password):
+        self.password = self.salted_password(password)
+        self.save()
+        self.clear_token()
+        return self
 
     def clear_token(self):
         self.email_token = ''
@@ -215,4 +252,3 @@ class User(MongoModel):
             return base64.b64decode(tb64).decode('ascii')
         except:
             return None
-

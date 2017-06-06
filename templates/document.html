@@ -1,9 +1,167 @@
 {% extends 'base.html' %}
 
-
 {% block title %}
-    {{ d.title }}
+    Demo
 {% endblock %}
 
-
 {% block head_send_email %}
+    <form class="navbar-form navbar-left" action="{{ url_for('document.send_mail', doc_url=d.doc_url) }}" method="post" onsubmit="return ajaxSendMail();">
+        <div class="form-group">
+            <input type="email" class="form-control" id="id-input-send-email" name="email"
+                   placeholder="输入邮箱地址以获取副本" required>
+            <input name="captcha" class="form-control" placeholder="验证码" autocomplete="off" required>
+            <input name="token" value='{{ token }}' hidden>
+            <img onclick="this.setAttribute('src','/img/captcha/s?nocache='+Math.random());"
+                 src="{{ url_for('img.captcha') }}" alt="Captcha" class="right"/>
+        </div>
+        <button type="submit" class="btn btn-default">发送简历到邮箱</button>
+    </form>
+{% endblock %}
+
+{% block head_login %}
+    <ul class="nav navbar-nav navbar-right">
+        {% if u and u.uuid == d.user_uuid %}
+            <li>
+                <a class="block-center" href="{{ url_for('user.document') }}">
+                    <span class="glyphicon glyphicon-pencil"></span> 返回编辑
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+{% endblock %}
+
+{% block body %}
+
+<div class="main container page-wrap">
+
+
+    <div hidden>
+        <textarea id="text-input"># 秋 ‧ 张
+
+---
+
+## 语言水平
+
+![](https://career.suzumiya.cc/static/user_pic/ccd29b9eaea0_1495359318.png)
+
+- 能流畅阅读英文专业书籍、文档及其他材料
+- 可无字幕观看MOOC课程、开发者大会视频
+
+---
+
+## 项目与工作经验
+
+### 阿里巴巴 B2B  2015.07 ~ 至今
+
+#### Web前端开发（实习）
+
+- 开发支持 **i18n** 的数据可视化组件
+
+- 使用 **SVG** 等技术开发内部系统数据可视化图表
+
+### 东西科技 2014.03 - 2014.06
+
+#### Node.js 开发（实习）
+
+- 开发、维护封装微信公众平台的 ** Express 中间件**
+
+- 使用 **Mocha** 、 **Chai** 及 **CoffeeScript** 编写单元测试
+
+---
+
+## 技能
+
+### 前端
+
+#### HTML / CSS
+
+- 能够编写语义化的 **HTML** ，模块化的 **CSS** ，实现较复杂的布局与动画
+
+- 熟悉已标准化的 **HTML5** / **CSS3** 新特性
+
+#### ECMAScript (JavaScript)
+
+- 熟悉 **ECMAScript (JavaScript)** ，对 **JavaScript引擎** 及相关 JIT 技术有一定的了解。
+
+### Web后端
+
+#### Node.js
+
+- 能够使用 **Node.js API** 或 **Express** 搭建简单的后端程序与数据库交互，渲染模板及提供 **RESTful API**。
+
+- 了解 **异步I/O** 及事件驱动。
+
+### 其他
+
+- 三年 **Linux** 使用经验
+
+---
+
+![](
+https://career.suzumiya.cc/static/user_pic/ccd29b9eaea0_1495198752.png)
+
+##[Awesome！我也要制作这样的简历！](https://career.suzumiya.cc/user/login)</textarea>
+    </div>
+
+    <div id="preview"></div>
+
+    <style>h2 {
+color: Green;
+}
+h4 {
+color: Green;
+}
+h3 {
+background:black;
+padding: 7px;
+border-radius: 5px;
+color:white;
+max-width: 500px;
+}
+strong {
+color: green
+}</style>
+
+    <script src="https://cdn.bootcss.com/markdown.js/0.5.0/markdown.min.js"></script>
+    <script>
+        function Editor(input, preview) {
+            this.update = function () {
+                preview.innerHTML = markdown.toHTML(input.value);
+            };
+            input.editor = this;
+            this.update();
+        }
+        const log = function log() {
+            console.log.apply(console, arguments);
+        };
+
+        new Editor(document.getElementById("text-input"), document.getElementById("preview"));
+
+        let template = function (r) {
+            let div = `
+<div class="alert alert-${r.status} alert-dismissible" role="alert" >
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">×</span>
+    </button>
+    ${r.msg}
+</div>`
+            return div
+        };
+
+        function ajaxSendMail() {
+            let ajaxForm = $(event.target)
+            ajaxForm.ajaxSubmit({
+                success: function (message) {
+                    r = JSON.parse(message)
+
+                    $('.alert-container').append(template(r));
+                    $('.alert').delay(2000).fadeOut(600);
+                },
+
+                clearForm: true,
+            });
+            return false;
+        };
+    </script>
+</div>
+{% endblock %}

@@ -1,4 +1,4 @@
-from usr_util.utils import *
+from user_util.utils import *
 
 # mongodb config
 from config import config
@@ -40,17 +40,6 @@ class MongoModel(object):
         ]
         return fields
 
-    '''
-class User(MongoModel):
-    @classmethod
-    def _fields(cls):
-        fields = [
-            ('name', str, ''),
-            ('password', str, ''),
-        ]
-        fields.extend(super()._fields())
-        return fields
-    '''
 
     @classmethod
     def has(cls, **kwargs):
@@ -145,7 +134,7 @@ class User(MongoModel):
     @classmethod
     def get(cls, id):
         can = isinstance(id, str) and id.isdigit()
-        if can == True:
+        if can:
             id = int(id)
         return cls.find_one(id=id)
 

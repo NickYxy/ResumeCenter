@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>
         {% block title %}
-        简历生成器 - Powered by Sanqianyuanye
+        个人简历系统 - Powered by Sanqianyuanye
         {% endblock %}
     </title>
     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
@@ -17,7 +17,7 @@
 </head>
 <body data-channel="public">
 <div class="container alert-container">
-    {% with messages = get_flashed_message(with_categories=true)  %}
+    {% with messages = get_flashed_messages(with_categories=true)  %}
         {% if messages %}
             {% for category, message in messages %}
                 <div class="alert alert-{{ category }} alert-dismissible" role="alert">
@@ -27,6 +27,7 @@
                     {{ messages }}
                 </div>
             {% endfor %}
+        {% endif %}
     {% endwith %}
 </div>
 <script>

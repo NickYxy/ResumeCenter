@@ -6,6 +6,6 @@ main = Blueprint('index', __name__)
 
 @main.route('/')
 def index():
-    u = current_user()
-    d = Document.find_one()
-    return render_template('index.html', u=u, d=d)
+    if current_user() is not None:
+        return redirect(url_for('user.dashboard'))
+    return redirect(url_for('demo.index'))

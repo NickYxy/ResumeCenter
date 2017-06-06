@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block body %}
-    <script src="https://cdn.bootcss.com/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://cdn.bootcss.com/particles.js/2.0.0/particles.min.js">
+    </script>
 
     <div id="id-div-login" class="div-form sign-flow">
         <form method="post" action="{{ url_for('user.login') }}">
@@ -9,7 +10,8 @@
                 <input name="password" id="id-input-password" type="password" placeholder="密码" required>
                 <input name="captcha" id="id-input-captcha" placeholder="验证码（不区分大小写）" autocomplete="off" required>
                 <img onclick="this.setAttribute('src','/img/captcha?nocache='+Math.random());"
-                     src="/img/captcha" alt="Captcha" class="right"/>
+                     src="{{ url_for('img.captcha') }}" alt="Captcha" class="right"/>
+
             </div>
             <br>
             <button class="btn btn-default btn-block">登录</button>
@@ -20,6 +22,7 @@
 
     <div id="particles-js"></div>
     <script type="text/javascript">
+        import * as particlesJS from "../../static/js/jquery.min";
         particlesJS.load('particles-js', '/static/js/particles.json');
     </script>
 

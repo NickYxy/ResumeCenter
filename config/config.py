@@ -14,6 +14,6 @@ config_dict = dict(
 )
 
 # mongodb config
-db_name = 'mongo_md_resume'
+db_name = 'mongo_resumecenter'
 client = MongoClient("mongodb://localhost:27017")
 db = client[db_name]

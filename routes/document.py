@@ -1,7 +1,8 @@
+from os import abort
+
 from . import *
 from models.document import Document
-from model.auth import Auth
-
+from models.auth import Auth
 
 main = Blueprint('document', __name__)
 
@@ -14,6 +15,7 @@ def index(doc_url):
         return render_template('document.html', d=d, u=u)
     else:
         abort(401)
+
 
 @main.route('/<doc_url>/token/<token>')
 def protected(doc_url, token):
